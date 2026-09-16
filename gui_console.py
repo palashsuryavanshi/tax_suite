@@ -24,6 +24,25 @@ COLOR_STALE = "#b45309"
 COLOR_STOPPED = "#6c757d"
 
 
+def _icon_path():
+    if getattr(sys, "frozen", False):
+        base = Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
+        for candidate in (base / "logo.ico", base / "static" / "logo.ico"):
+            if candidate.exists():
+                return candidate
+        return base / "logo.ico"
+    return Path(__file__).parent / "static" / "logo.ico"
+
+
+def _apply_icon(root):
+    icon = _icon_path()
+    if icon.exists():
+        try:
+            root.iconbitmap(str(icon))
+        except Exception:
+            pass
+
+
 class ServerConsoleGUI:
     def __init__(self, root):
         self.root = root
@@ -35,6 +54,7 @@ class ServerConsoleGUI:
         self._last_state = None
         self._log_visible = False
 
+        _apply_icon(root)
         self._build_ui()
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
         self._poll()

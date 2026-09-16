@@ -25,6 +25,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayIcon={app}\{#MyAppExeName}
 VersionInfoVersion={#MyAppVersion}
 VersionInfoCopyright=Copyright (c) 2026 palashsuryavanshi
+SetupIconFile=static\logo.ico
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

@@ -24,7 +24,11 @@ _BASE_DIR = (
     else Path(__file__).parent
 )
 
-app = Flask(__name__, template_folder=str(_BASE_DIR / "templates"))
+app = Flask(
+    __name__,
+    template_folder=str(_BASE_DIR / "templates"),
+    static_folder=str(_BASE_DIR / "static"),
+)
 app.secret_key = secrets.token_hex(16)
 
 

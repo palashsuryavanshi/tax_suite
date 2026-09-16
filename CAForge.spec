@@ -4,7 +4,10 @@ a = Analysis(
     ["gui_console.py"],
     pathex=[],
     binaries=[],
-    datas=[("templates", "templates")],
+    datas=[
+        ("templates", "templates"),
+        ("static", "static"),
+    ],
     hiddenimports=[
         "werkzeug.serving",
         "cryptography",
@@ -32,7 +35,7 @@ exe = EXE(
     strip=False,
     upx=True,
     console=False,
-    icon=None,
+    icon="static/logo.ico",
 )
 
 coll = COLLECT(

@@ -3,6 +3,7 @@
 
 <head>
     <title>{% block title %}CA Forge{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
@@ -39,12 +40,18 @@
         }
 
         .sidebar .brand {
-            padding: 24px 20px;
-            font-size: 17px;
-            font-weight: bold;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             border-bottom: 1px solid rgba(255,255,255,0.12);
             text-decoration: none;
-            color: #ffffff;
+        }
+
+        .sidebar .brand img {
+            max-width: 170px;
+            max-height: 48px;
+            object-fit: contain;
         }
 
         .sidebar .group-label {
@@ -161,7 +168,10 @@
 <div class="layout">
 
     <nav class="sidebar">
-        <a class="brand" href="/">CA Forge</a>
+        <a class="brand" href="/">
+            <img src="{{ url_for('static', filename='logo-name.png') }}"
+                 alt="CA Forge">
+        </a>
 
         <div class="group-label">Features</div>
 
