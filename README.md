@@ -1,1 +1,97 @@
-# tax_suite
+# Tax Suite
+
+Local Flask app that manages credentials for government tax portals (GST, Income Tax, Income Tax TDS) and automates login into those portals using Playwright.
+
+Credentials are stored encrypted at rest (Fernet) with an ACL-restricted key, so plaintext passwords never touch the disk.
+
+## Features
+
+- **Multiple portals, multiple accounts** - GST, Income Tax, and Income Tax TDS (with TDS Login and TRACES Login subtypes).
+- **Automated login** - Playwright drives the browser through the portal login, including two-step ePortal flows and captcha detection.
+- **Encrypted credential store** - AES encryption via `cryptography` (Fernet); a backup key is kept as a fallback.
+- **Bulk import** - Load credentials from an `.xlsx` file, with a downloadable template (Portal, Username, Password).
+- **Server consoles** - Two launchers to run the app and manage backups:
+  - `TaxSuiteGUI.exe` - graphical control panel (start/stop, backup/restore, live log).
+  - `TaxSuiteConsole.exe` - menu-driven command-line version.
+- **Backup & restore** - One-click zipped backups of the encrypted store plus keys, with validated restore.
+
+## Project structure
+
+```
+app.py             Flask app: routes, dashboard, manage & import pages
+automation.py      Playwright launcher and login automation
+storage.py         Encrypted credential store (Fernet)
+importer.py        Excel (.xlsx) template + import parsing
+tools/             Portal definitions (gst, incometax, tds)
+templates/         Jinja2 templates (base + pages)
+server_console.py  Shared console logic (start/stop/status/backup/restore)
+gui_console.py     tkinter GUI over server_console.py
+requirements.txt   Python dependencies
+```
+
+## Requirements
+
+- Python 3.10+
+- Windows (taskkill/PID handling is Windows-specific; other platforms need small tweaks in `server_console.py`)
+
+## Setup
+
+```powershell
+python -m venv venv
+venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+playwright install chromium
+```
+
+## Running the app
+
+### From the command line
+
+```powershell
+venv\Scripts\python app.py
+```
+
+Then open http://127.0.0.1:5000/
+
+### GUI console
+
+Build (or use the prebuilt `TaxSuiteGUI.exe` in the project root):
+
+```powershell
+venv\Scripts\pyinstaller.exe --onefile --windowed --name TaxSuiteGUI gui_console.py
+```
+
+Double-click the exe. Use the buttons to start/stop the server, open it in a browser, create backups, or restore one. The log pane tails `server.log`.
+
+### CLI console
+
+```powershell
+venv\Scripts\pyinstaller.exe --onefile --name TaxSuiteConsole server_console.py
+```
+
+Menu options: start, stop, status, backup, restore. Both exes must stay next to `app.py`, `venv`, and `credentials.enc` (they locate the project from their own location).
+
+## Playwright details
+
+- Uses the system-installed chromium (installed via `playwright install chromium`).
+- Bypasses the ePortal `automation-validator` "Permission Denied" anti-bot check by hiding `navigator.webdriver` (`--disable-blink-features=AutomationControlled` plus a stealth init script).
+- Handles the two-step ePortal login (User ID, then password + "confirm secure access" checkbox) and only auto-submits when no captcha is present.
+
+## Security notes
+
+- The data file `credentials.enc` and the key file `.secrets\master.key` are created on first run.
+- The master key is locked down at the OS level (`icacls`) so only your user account can read it.
+- Never move the key out of `.secrets\` - the app reads it from there.
+- `.gitignore` excludes `credentials.enc`, `.secrets/`, `secret.key`, `venv/`, the compiled exes, `server.log`, and `backups/` - check before committing.
+
+## Backup & restore
+
+- Backups write `backups\backup-<timestamp>.zip` containing `credentials.enc`, `.secrets\master.key`, and `secret.key`. All three are needed to decrypt your data.
+- Restore runs through the console/GUI and validates the archive contents before extracting.
+- Store backups somewhere safe - they are your only recovery if the store is damaged.
+
+## Troubleshooting
+
+- **"Permission Denied" on ePortal** - verify chromium is installed (`playwright install chromium`) and the stealth flags are present in `automation.py`.
+- **Port already in use** - stop the server from the console/GUI first, or set `TAX_PORT` to another port.
+- **Restore won't decrypt** - the backup and the current key must match; restore an older backup only if you also restore its matching key (which the zip includes).
