@@ -4,6 +4,7 @@ Ship with PyInstaller:  pyinstaller --onefile --windowed --name CAForge gui_cons
 Reuses the actions from server_console.py (start/stop/status/backup/restore).
 """
 
+import os
 import re
 import subprocess
 import sys
@@ -16,6 +17,7 @@ from tkinter import filedialog, messagebox, ttk
 
 import server_console as sc
 from server_console import BACKUP_DIR, URL
+import updates
 
 _ANSI = re.compile(r"\033\[[0-9;]*m")
 
@@ -140,6 +142,11 @@ class ServerConsoleGUI:
             footer, text="Create Shortcut", command=self._create_shortcut,
         )
         self.btn_shortcut.pack(side="left")
+
+        self.btn_update = ttk.Button(
+            footer, text="Check for Updates", command=self._check_updates,
+        )
+        self.btn_update.pack(side="left", padx=(8, 0))
 
         self.btn_toggle_log = ttk.Button(
             footer, text="Show Log", command=self._toggle_log,
@@ -303,6 +310,80 @@ class ServerConsoleGUI:
                 "Shortcut",
                 "Failed to create shortcut:\n" + result.stderr.strip(),
             )
+
+    def _check_updates(self):
+        self.btn_update.configure(state="disabled")
+        self._log("Checking for updates...", "info")
+        threading.Thread(target=self._update_worker, daemon=True).start()
+
+    def _update_worker(self):
+        def fail(msg, tag="err"):
+            self.root.after(
+                0,
+                lambda: (self._log(msg, tag),
+                         self.btn_update.configure(state="normal")),
+            )
+
+        info = updates.check_update()
+        if not info:
+            fail("Update check failed (no internet?).")
+            return
+
+        current = updates.APP_VERSION
+        latest = info["version"]
+
+        if updates._version_tuple(latest) <= updates._version_tuple(current):
+            fail(f"Already up to date (v{current}).", "ok")
+            return
+
+        if not info.get("installer"):
+            fail(f"Update available (v{latest}) but no installer found.")
+            return
+
+        self.root.after(0, lambda: self._ask_download(info))
+
+    def _ask_download(self, info):
+        answer = messagebox.askyesno(
+            "Update available",
+            f"CA Forge {info['version']} is available.\n"
+            f"Current version: {updates.APP_VERSION}\n\n"
+            "Download and install now?\n"
+            "The server and console will close to apply the update.",
+        )
+        if not answer:
+            self._log("Update skipped.", "info")
+            self.btn_update.configure(state="normal")
+            return
+        self._log(f"Downloading {info['installer']['name']}...", "info")
+        threading.Thread(target=self._download_worker, args=(info,), daemon=True).start()
+
+    def _download_worker(self, info):
+        dest = BACKUP_DIR.parent / "updates"
+        try:
+            path = updates.download_installer(info["installer"]["url"], dest)
+        except Exception as exc:
+            self.root.after(
+                0,
+                lambda: (self._log(f"Download failed: {exc}", "err"),
+                         self.btn_update.configure(state="normal")),
+            )
+            return
+        self.root.after(0, lambda: self._run_installer(path))
+
+    def _run_installer(self, path):
+        sc.stop_server()
+        try:
+            os.startfile(str(path))
+        except Exception as exc:
+            messagebox.showerror("Update", f"Failed to start installer:\n{exc}")
+            self.btn_update.configure(state="normal")
+            return
+        self._log(
+            f"Installer launched: {path.name}. "
+            "Follow the on-screen prompts.",
+            "ok",
+        )
+        self.root.after(400, self.root.destroy)
 
     def _backup(self):
         self._set_busy(True)

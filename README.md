@@ -118,6 +118,18 @@ The bundled app never needs the repo's `venv`:
 - Bypasses the ePortal `automation-validator` "Permission Denied" anti-bot check by hiding `navigator.webdriver` (`--disable-blink-features=AutomationControlled` plus a stealth init script).
 - Handles the two-step ePortal login (User ID, then password + "confirm secure access" checkbox) and only auto-submits when no captcha is present.
 
+## Updates
+
+- The app checks GitHub (`palashsuryavanshi/CA-Forge`) on the background for
+  the latest release.
+- When a newer version exists, the web app shows a popup on every page with a
+  "Download Installer" link (shown once per browser session).
+- The GUI console has a **Check for Updates** button that downloads the new
+  installer and launches it (the server and console close to apply it).
+- The current release version lives in `updates.py` (`APP_VERSION`) - bump it
+  before building a new release so updaters detect it.
+- Offline machines fail silently (no popup, button reports a check failure).
+
 ## Security notes
 
 - The data file `credentials.enc` and the key file `.secrets\master.key` are created on first run.

@@ -14,9 +14,12 @@ from flask import (
 )
 
 from automation import run_login_in_thread
-from storage import add_credential, get_credential, load_credentials, remove_credential
 from importer import build_template, parse_import
+from storage import add_credential, get_credential, load_credentials, remove_credential
 from tools import TOOLS, get_tool
+import updates
+
+updates.start_background_refresh()
 
 _BASE_DIR = (
     Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
@@ -74,6 +77,29 @@ def import_credentials():
         flash("The file contains no data to import.", "error")
 
     return redirect(url_for("manage_credentials"))
+
+
+@app.context_processor
+def inject_updates():
+    update = {
+        "available": updates.has_update(),
+        "current": updates.APP_VERSION,
+        "latest": None,
+    }
+    info = updates.latest_release()
+    if info:
+        update["latest"] = info
+    return {"UPDATE": update}
+
+
+@app.route("/api/update-check")
+def api_update_check():
+    info = updates.check_update()
+    return {
+        "current_version": updates.APP_VERSION,
+        "has_update": updates.has_update(),
+        "latest": info,
+    }
 
 
 @app.context_processor

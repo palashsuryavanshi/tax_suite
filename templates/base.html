@@ -160,6 +160,75 @@
             color: #b71c1c;
             border: 1px solid #f5c6cb;
         }
+
+        .update-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .update-card {
+            background: white;
+            border-radius: 12px;
+            padding: 26px 30px;
+            max-width: 420px;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .update-card h3 {
+            margin: 0 0 8px;
+            color: #0e4d3b;
+            font-size: 19px;
+        }
+
+        .update-card p {
+            font-size: 14px;
+            color: #444;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            max-height: 160px;
+            overflow-y: auto;
+        }
+
+        .update-card .badge-new {
+            display: inline-block;
+            background: #ff9800;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+
+        .update-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .update-actions .btn {
+            flex: 1;
+            text-align: center;
+            text-decoration: none;
+            padding: 10px 0;
+        }
+
+        .update-modal .close {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            font-size: 20px;
+            cursor: pointer;
+            color: #888;
+            border: none;
+            background: none;
+        }
     </style>
 </head>
 
@@ -197,6 +266,32 @@
     </main>
 
 </div>
+
+{% if UPDATE.available %}
+<div class="update-modal" id="updateModal" hidden>
+    <div class="update-card">
+        <button class="close" onclick="document.getElementById('updateModal').hidden = true;">&times;</button>
+        <span class="badge-new">New version</span>
+        <h3>CA Forge {{ UPDATE.latest.version }} is available</h3>
+        <p>{{ UPDATE.latest.body or 'A new release is ready to install.' }}</p>
+        <div class="update-actions">
+            <a class="btn btn-dark" target="_blank" rel="noopener"
+               href="{{ UPDATE.latest.installer.url }}">Download Installer</a>
+            <button class="btn btn-light" onclick="document.getElementById('updateModal').hidden = true;">Later</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var available = {{ 'true' if UPDATE.available else 'false' }};
+        if (available && !sessionStorage.getItem('caforge-update-seen')) {
+            sessionStorage.setItem('caforge-update-seen', '1');
+            document.getElementById('updateModal').hidden = false;
+        }
+    })();
+</script>
+{% endif %}
 
 </body>
 
