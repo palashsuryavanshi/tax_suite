@@ -93,8 +93,17 @@ the web app, and Chromium so it works with no internet connection).
 
 During setup it asks for the usual permissions: install folder, desktop
 shortcut, a Windows Firewall rule for TCP port 5000 (Administrator/UAC),
-and optional start-at-logon. Uninstalling removes the shortcut and the
-firewall rule but keeps `credentials.enc`/`.secrets` so your data survives.
+and optional start-at-logon (on by default). Uninstalling removes the
+shortcut and the firewall rule but keeps `credentials.enc`/`.secrets` so
+your data survives.
+
+Start-up behaviour:
+- Opening the GUI console automatically starts the web server (no manual
+  "Start Server" click needed).
+- The installer's start-at-logon option registers an
+  `HKCU\...\CurrentVersion\Run` entry running `CAForge.exe --serve`, so it
+  appears under Windows Task Manager > Startup apps and serves the web app
+  from logon.
 
 The bundled app never needs the repo's `venv`:
 - The GUI console runs the Flask server in-process (no `python.exe` required).

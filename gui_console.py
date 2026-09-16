@@ -57,6 +57,7 @@ class ServerConsoleGUI:
         _apply_icon(root)
         self._build_ui()
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
+        self.root.after(400, self._auto_start)
         self._poll()
 
     # ------------------------------------------------------------------ UI
@@ -218,6 +219,13 @@ class ServerConsoleGUI:
             pass
 
     # ------------------------------------------------------------- actions
+    def _auto_start(self):
+        """Start the web server automatically when the console opens."""
+        if sc.running_pid():
+            return
+        self._log("Server auto-starting...", "info")
+        self._start()
+
     def _start(self):
         self._set_busy(True)
         self._log("Starting server...", "info")
