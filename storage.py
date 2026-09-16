@@ -1,12 +1,17 @@
 import json
 import os
 import subprocess
+import sys
 import time
 from pathlib import Path
 
 from cryptography.fernet import Fernet
 
-PROJECT_DIR = Path(__file__).parent
+PROJECT_DIR = (
+    Path(sys.executable).parent
+    if getattr(sys, "frozen", False)
+    else Path(__file__).parent
+)
 
 LEGACY_KEY_FILE = PROJECT_DIR / "secret.key"
 

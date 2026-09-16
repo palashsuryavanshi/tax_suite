@@ -1,4 +1,16 @@
+import os
+import sys
 import time
+from pathlib import Path
+
+_BROWSERS_BASE = (
+    Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
+    if getattr(sys, "frozen", False)
+    else Path(__file__).parent
+)
+_BUNDLED_BROWSERS = _BROWSERS_BASE / "browsers"
+if _BUNDLED_BROWSERS.is_dir():
+    os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", str(_BUNDLED_BROWSERS))
 
 from playwright.sync_api import sync_playwright
 

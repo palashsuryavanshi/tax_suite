@@ -10,6 +10,7 @@ menu and the tkinter GUI (``gui_console.py``).
 import os
 import subprocess
 import sys
+import threading
 import urllib.request
 import zipfile
 from datetime import datetime
@@ -42,6 +43,24 @@ _RESTORE_NAMES = {
     ".secrets/master.key",
     "secret.key",
 }
+
+_httpd = None
+
+
+def _in_process():
+    """Bundled builds have no venv python, so serve in-process."""
+    from werkzeug.serving import make_server
+
+    global _httpd
+    if _httpd is not None:
+        return _httpd
+
+    from app import app
+
+    _httpd = make_server(HOST, PORT, app, threaded=True)
+    thread = threading.Thread(target=_httpd.serve_forever, daemon=True)
+    thread.start()
+    return _httpd
 
 
 def _enable_ansi():
@@ -118,6 +137,14 @@ def start_server():
     if running_pid():
         return False, "Server is already running."
 
+    if getattr(sys, "frozen", False):
+        _in_process()
+        PID_FILE.write_text(str(os.getpid()))
+        return True, (
+            f"Server starting on {URL} (PID {os.getpid()}, in-process)\n"
+            f"Log: {LOG_FILE}"
+        )
+
     python = resolve_python()
     if not (BASE_DIR / "app.py").exists():
         return False, "app.py not found next to the console. Wrong location?"
@@ -144,6 +171,13 @@ def stop_server():
     pid = running_pid()
     if not pid:
         return False, "Server is not running."
+
+    global _httpd
+    if getattr(sys, "frozen", False) and _httpd is not None:
+        _httpd.shutdown()
+        _httpd = None
+        PID_FILE.unlink(missing_ok=True)
+        return True, f"Server stopped (PID {pid})."
 
     subprocess.run(
         ["taskkill", "/PID", str(pid), "/T", "/F"],

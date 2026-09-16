@@ -7,7 +7,7 @@ credentials.enc.bak-*
 secret.key
 dist/
 build/
-*.spec
+installer/
 TaxSuiteConsole.exe
 TaxSuiteGUI.exe
 server.log

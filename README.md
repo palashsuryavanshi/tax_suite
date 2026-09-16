@@ -71,6 +71,38 @@ venv\Scripts\pyinstaller.exe --onefile --name TaxSuiteConsole server_console.py
 
 Menu options: start, stop, status, backup, restore. Both exes must stay next to `app.py`, `venv`, and `credentials.enc` (they locate the project from their own location).
 
+## Shipping an installer (setup.exe)
+
+The project can be installed on any Windows machine as a single self-contained
+`TaxSuite-Setup.exe` (bundles Python, Flask, Playwright, openpyxl, cryptography,
+the web app, and Chromium so it works with no internet connection).
+
+1. Build the one-dir bundle:
+   ```powershell
+   venv\Scripts\pyinstaller.exe --noconfirm TaxSuiteGUI.spec
+   ```
+2. Stage the Playwright browsers into the bundle:
+   ```powershell
+   robocopy "$env:LOCALAPPDATA\ms-playwright" "dist\TaxSuiteGUI\_internal\browsers" /E
+   ```
+3. Compile the installer (needs [Inno Setup](https://jrsoftware.org/isinfo.php)):
+   ```powershell
+   & "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe" TaxSuite.iss
+   ```
+   Output: `installer\TaxSuite-Setup.exe` (~260 MB, Chromium included).
+
+During setup it asks for the usual permissions: install folder, desktop
+shortcut, a Windows Firewall rule for TCP port 5000 (Administrator/UAC),
+and optional start-at-logon. Uninstalling removes the shortcut and the
+firewall rule but keeps `credentials.enc`/`.secrets` so your data survives.
+
+The bundled app never needs the repo's `venv`:
+- The GUI console runs the Flask server in-process (no `python.exe` required).
+- `--launch` starts the server, opens the browser, and keeps running hidden as
+  the server host. `--serve` runs the server hidden with no browser window
+  (used by the start-at-logon option).
+- `browsers/` next to the app is used for Playwright automatically.
+
 ## Playwright details
 
 - Uses the system-installed chromium (installed via `playwright install chromium`).

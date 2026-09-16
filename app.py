@@ -1,4 +1,6 @@
 import secrets
+import sys
+from pathlib import Path
 
 from flask import (
     Flask,
@@ -16,7 +18,13 @@ from storage import add_credential, get_credential, load_credentials, remove_cre
 from importer import build_template, parse_import
 from tools import TOOLS, get_tool
 
-app = Flask(__name__)
+_BASE_DIR = (
+    Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
+    if getattr(sys, "frozen", False)
+    else Path(__file__).parent
+)
+
+app = Flask(__name__, template_folder=str(_BASE_DIR / "templates"))
 app.secret_key = secrets.token_hex(16)
 
 
