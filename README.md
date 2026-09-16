@@ -1,4 +1,4 @@
-# Tax Suite
+# CA Forge
 
 Local Flask app that manages credentials for government tax portals (GST, Income Tax, Income Tax TDS) and automates login into those portals using Playwright.
 
@@ -11,8 +11,8 @@ Credentials are stored encrypted at rest (Fernet) with an ACL-restricted key, so
 - **Encrypted credential store** - AES encryption via `cryptography` (Fernet); a backup key is kept as a fallback.
 - **Bulk import** - Load credentials from an `.xlsx` file, with a downloadable template (Portal, Username, Password).
 - **Server consoles** - Two launchers to run the app and manage backups:
-  - `TaxSuiteGUI.exe` - graphical control panel (start/stop, backup/restore, live log).
-  - `TaxSuiteConsole.exe` - menu-driven command-line version.
+  - `CAForge.exe` - graphical control panel (start/stop, backup/restore, live log).
+  - `CAForgeConsole.exe` - menu-driven command-line version.
 - **Backup & restore** - One-click zipped backups of the encrypted store plus keys, with validated restore.
 
 ## Project structure
@@ -55,10 +55,10 @@ Then open http://127.0.0.1:5000/
 
 ### GUI console
 
-Build (or use the prebuilt `TaxSuiteGUI.exe` in the project root):
+Build (or use the prebuilt `CAForge.exe` in the project root):
 
 ```powershell
-venv\Scripts\pyinstaller.exe --onefile --windowed --name TaxSuiteGUI gui_console.py
+venv\Scripts\pyinstaller.exe --onefile --windowed --name CAForge gui_console.py
 ```
 
 Double-click the exe. Use the buttons to start/stop the server, open it in a browser, create backups, or restore one. The log pane tails `server.log`.
@@ -66,7 +66,7 @@ Double-click the exe. Use the buttons to start/stop the server, open it in a bro
 ### CLI console
 
 ```powershell
-venv\Scripts\pyinstaller.exe --onefile --name TaxSuiteConsole server_console.py
+venv\Scripts\pyinstaller.exe --onefile --name CAForgeConsole server_console.py
 ```
 
 Menu options: start, stop, status, backup, restore. Both exes must stay next to `app.py`, `venv`, and `credentials.enc` (they locate the project from their own location).
@@ -74,22 +74,22 @@ Menu options: start, stop, status, backup, restore. Both exes must stay next to 
 ## Shipping an installer (setup.exe)
 
 The project can be installed on any Windows machine as a single self-contained
-`TaxSuite-Setup.exe` (bundles Python, Flask, Playwright, openpyxl, cryptography,
+`CAForge-Setup.exe` (bundles Python, Flask, Playwright, openpyxl, cryptography,
 the web app, and Chromium so it works with no internet connection).
 
 1. Build the one-dir bundle:
    ```powershell
-   venv\Scripts\pyinstaller.exe --noconfirm TaxSuiteGUI.spec
+   venv\Scripts\pyinstaller.exe --noconfirm CAForge.spec
    ```
 2. Stage the Playwright browsers into the bundle:
    ```powershell
-   robocopy "$env:LOCALAPPDATA\ms-playwright" "dist\TaxSuiteGUI\_internal\browsers" /E
+   robocopy "$env:LOCALAPPDATA\ms-playwright" "dist\CAForge\_internal\browsers" /E
    ```
 3. Compile the installer (needs [Inno Setup](https://jrsoftware.org/isinfo.php)):
    ```powershell
    & "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe" TaxSuite.iss
    ```
-   Output: `installer\TaxSuite-Setup.exe` (~260 MB, Chromium included).
+   Output: `installer\CAForge-Setup.exe` (~260 MB, Chromium included).
 
 During setup it asks for the usual permissions: install folder, desktop
 shortcut, a Windows Firewall rule for TCP port 5000 (Administrator/UAC),

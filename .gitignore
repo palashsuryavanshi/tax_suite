@@ -8,8 +8,8 @@ secret.key
 dist/
 build/
 installer/
-TaxSuiteConsole.exe
-TaxSuiteGUI.exe
+CAForge.exe
+CAForgeConsole.exe
 server.log
 .server.pid
 backups/

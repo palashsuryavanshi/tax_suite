@@ -1,4 +1,4 @@
-"""Server console for the Tax Automation Suite.
+"""Server console for the CA Forge suite.
 
 Launcher-style console app that starts/stops the Flask web server and
 provides backup/restore for the encrypted credentials.
@@ -292,7 +292,7 @@ def restore_backup():
 
 def banner():
     print()
-    print(f"{Color.CYAN}{Color.BOLD}=== Tax Automation Suite - Server Console ==={Color.RESET}")
+    print(f"{Color.CYAN}{Color.BOLD}=== CA Forge - Server Console ==={Color.RESET}")
     print(f"{Color.DIM}Project : {BASE_DIR}{Color.RESET}")
     print()
 

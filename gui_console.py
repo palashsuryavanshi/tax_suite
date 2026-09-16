@@ -1,6 +1,6 @@
-"""tkinter GUI for the Tax Automation Suite server console.
+"""tkinter GUI for the CA Forge server console.
 
-Ship with PyInstaller:  pyinstaller --onefile --windowed --name TaxSuiteGUI gui_console.py
+Ship with PyInstaller:  pyinstaller --onefile --windowed --name CAForge gui_console.py
 Reuses the actions from server_console.py (start/stop/status/backup/restore).
 """
 
@@ -27,7 +27,7 @@ COLOR_STOPPED = "#6c757d"
 class ServerConsoleGUI:
     def __init__(self, root):
         self.root = root
-        root.title("Tax Automation Suite - Server Console")
+        root.title("CA Forge - Server Console")
         root.geometry("420x320")
         root.resizable(True, True)
 
@@ -48,7 +48,7 @@ class ServerConsoleGUI:
         header.pack(fill="x", pady=(0, 12))
 
         ttk.Label(
-            header, text="Tax Automation Suite",
+            header, text="CA Forge",
             font=("Segoe UI", 14, "bold"),
         ).pack(side="left")
 
@@ -224,7 +224,7 @@ class ServerConsoleGUI:
     def _exe_target(self):
         if getattr(sys, "frozen", False):
             return str(Path(sys.executable).absolute())
-        local = Path(__file__).parent / "TaxSuiteGUI.exe"
+        local = Path(__file__).parent / "CAForge.exe"
         if local.exists():
             return str(local)
         return None
@@ -234,9 +234,9 @@ class ServerConsoleGUI:
         if target is None:
             messagebox.showwarning(
                 "Shortcut",
-                "Run the built TaxSuiteGUI.exe instead of the script to "
+                "Run the built CAForge.exe instead of the script to "
                 "create a shortcut.\n\nBuild it with:\n"
-                "pyinstaller --onefile --windowed --name TaxSuiteGUI gui_console.py",
+                "pyinstaller --onefile --windowed --name CAForge gui_console.py",
             )
             return
 
@@ -246,12 +246,12 @@ class ServerConsoleGUI:
         script = (
             "$ws = New-Object -ComObject WScript.Shell;"
             "$d = [Environment]::GetFolderPath('Desktop');"
-            "$s = $ws.CreateShortcut($d + '\\Tax Suite.lnk');"
+            "$s = $ws.CreateShortcut($d + '\\CA Forge.lnk');"
             f"$s.TargetPath = '{escaped_target}';"
             "$s.Arguments = '--launch';"
             f"$s.WorkingDirectory = '{escaped_workdir}';"
             f"$s.IconLocation = '{escaped_target},0';"
-            "$s.Description = 'Start the Tax Suite web app and open it "
+            "$s.Description = 'Start the CA Forge web app and open it "
             "in the browser';"
             "$s.Save(); Write-Output 'ok'"
         )
@@ -333,7 +333,7 @@ def _launch_server():
             try:
                 app = tk.Tk()
                 app.withdraw()
-                messagebox.showerror("Tax Suite", msg, parent=app)
+                messagebox.showerror("CA Forge", msg, parent=app)
                 app.destroy()
             except Exception:
                 pass
@@ -358,7 +358,7 @@ def _serve_only():
         try:
             app = tk.Tk()
             app.withdraw()
-            messagebox.showerror("Tax Suite", msg, parent=app)
+            messagebox.showerror("CA Forge", msg, parent=app)
             app.destroy()
         except Exception:
             pass
