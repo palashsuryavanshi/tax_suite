@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tool.name }} | Tax Automation Suite{% endblock %}
+
+{% block content %}
+
+<h1 style="color:{{ accent }};">{{ tool.name }}</h1>
+<p>{{ tool.description }}</p>
+
+<div class="card">
+    <h2>Saved accounts</h2>
+
+    {% if accounts %}
+
+    <table>
+        <tr>
+            <th>Username</th>
+            <th style="width:280px">Login</th>
+        </tr>
+
+        {% for account in accounts %}
+
+        <tr>
+            <td>{{ account.username }}</td>
+            <td>
+
+                {% if tool.subtypes %}
+
+                    {% for subtype in tool.subtypes %}
+
+                    <form action="/tool/{{ tool.key }}/login" method="POST"
+                          style="display:inline-block; margin-right:6px;">
+                        <input type="hidden" name="username"
+                               value="{{ account.username }}">
+                        <input type="hidden" name="subtype"
+                               value="{{ subtype.key }}">
+                        <button class="btn btn-dark" type="submit">
+                            {{ subtype.name }}
+                        </button>
+                    </form>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <form action="/tool/{{ tool.key }}/login" method="POST"
+                          style="display:inline">
+                        <input type="hidden" name="username"
+                               value="{{ account.username }}">
+                        <button class="btn btn-dark" type="submit">
+                            Login to {{ tool.name }}
+                        </button>
+                    </form>
+
+                {% endif %}
+
+            </td>
+        </tr>
+
+        {% endfor %}
+    </table>
+
+    {% else %}
+
+    <p>
+        No credentials saved yet. Add them under
+        <a href="/manage">Manage Credentials</a>.
+    </p>
+
+    {% endif %}
+</div>
+
+{% endblock %}

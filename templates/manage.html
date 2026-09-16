@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Credentials | Tax Automation Suite{% endblock %}
+
+{% block content %}
+
+<h1 style="color:#0e4d3b;">Manage Credentials</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+
+    <div class="card" style="margin-bottom:20px; padding:15px;">
+
+        {% for category, message in messages %}
+
+        <div class="flash {{ category }}">{{ message }}</div>
+
+        {% endfor %}
+
+    </div>
+
+    {% endif %}
+{% endwith %}
+
+<div class="card">
+    <h2>Saved accounts</h2>
+
+    {% for tool, accounts in groups %}
+
+    <h3>{{ tool.name }}</h3>
+
+    {% if accounts %}
+
+    <table>
+        <tr>
+            <th>Username</th>
+            <th style="width:120px">Actions</th>
+        </tr>
+
+        {% for account in accounts %}
+
+        <tr>
+            <td>{{ account.username }}</td>
+            <td>
+                <form action="/delete" method="POST" style="display:inline">
+                    <input type="hidden" name="tool" value="{{ tool.key }}">
+                    <input type="hidden" name="username" value="{{ account.username }}">
+                    <button class="btn btn-danger" type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+
+        {% endfor %}
+    </table>
+
+    {% else %}
+
+    <p>No credentials saved.</p>
+
+    {% endif %}
+
+    {% endfor %}
+</div>
+
+<div class="card">
+    <h2>Add credentials</h2>
+
+    <form action="/save" method="POST">
+
+        <label>Tool</label>
+        <select name="tool" required>
+            {% for tool in TOOLS.values() %}
+            <option value="{{ tool.key }}">{{ tool.name }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Username</label>
+        <input type="text" name="username" required>
+
+        <label>Password</label>
+        <input type="password" name="password" required>
+
+        <button class="btn btn-dark" type="submit"
+                style="margin-top:20px; width:100%">
+            Save Credentials
+        </button>
+
+    </form>
+</div>
+
+<div class="card">
+    <h2>Import from Excel</h2>
+
+    <p>
+        Import credentials in bulk using an .xlsx file.
+        Download the
+        <a href="/template">template</a>
+        with columns "Portal, Username, Password", fill it in,
+        then upload it here.
+    </p>
+
+    <form action="/import" method="POST" enctype="multipart/form-data">
+
+        <label>Excel file (.xlsx)</label>
+        <input type="file" name="file" accept=".xlsx"
+               required>
+
+        <button class="btn btn-dark" type="submit"
+                style="margin-top:20px; width:100%">
+            Import Credentials
+        </button>
+
+    </form>
+</div>
+
+{% endblock %}

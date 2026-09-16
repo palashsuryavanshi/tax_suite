@@ -1,0 +1,15 @@
+venv/
+__pycache__/
+*.pyc
+.secrets/
+credentials.enc
+credentials.enc.bak-*
+secret.key
+dist/
+build/
+*.spec
+TaxSuiteConsole.exe
+TaxSuiteGUI.exe
+server.log
+.server.pid
+backups/

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 style="color:#0e4d3b;">Dashboard</h1>
+
+<div class="grid" style="display:flex; flex-wrap:wrap; gap:20px;">
+
+    <a class="card" href="/manage"
+       style="width:280px; text-decoration:none; color:inherit;
+              border-top:5px solid #1b6a50;">
+        <h2 style="color:#1b6a50;">Manage Credentials</h2>
+        <p>Add, view, and delete saved accounts for all tax portals.</p>
+    </a>
+
+    {% for tool in tools %}
+
+    <a class="card" href="/tool/{{ tool.key }}"
+       style="width:280px; text-decoration:none; color:inherit;
+              border-top:5px solid {{ tool.accent }};">
+        <h2 style="color:{{ tool.accent }};">{{ tool.name }}</h2>
+        <p>{{ tool.description }}</p>
+        <span class="badge"
+              style="background:#f0f0f0; border:1px solid #ddd;
+                     border-radius:20px; padding:4px 12px; font-size:13px;
+                     color:{{ tool.accent }};">
+            {{ tool.account_count }} saved account(s)
+        </span>
+    </a>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}
